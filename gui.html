@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Legendas do canal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 p-6 font-sans">
+  <div class="max-w-xl mx-auto space-y-4">
+    <h1 class="text-xl font-semibold">Baixar legendas de um canal do YouTube</h1>
+
+    <div class="space-y-1">
+      <label class="text-sm text-slate-400">URL do canal</label>
+      <input id="canal" placeholder="https://www.youtube.com/@canal/videos"
+             class="w-full rounded bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:border-slate-500">
+    </div>
+
+    <div class="space-y-1">
+      <label class="text-sm text-slate-400">Idiomas (separados por vírgula)</label>
+      <input id="idiomas" value="pt,pt-BR,en"
+             class="w-full rounded bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:border-slate-500">
+    </div>
+
+    <div class="space-y-1">
+      <label class="text-sm text-slate-400">Pasta de destino</label>
+      <div class="flex gap-2">
+        <input id="saida" value="legendas"
+               class="flex-1 rounded bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:border-slate-500">
+        <button onclick="escolherPasta()"
+                class="px-3 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm">Escolher...</button>
+      </div>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-slate-300">
+      <input id="auto" type="checkbox" class="accent-indigo-500">
+      Incluir legendas geradas automaticamente
+    </label>
+
+    <button id="btn" onclick="baixar()"
+            class="w-full py-2 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+      Baixar legendas
+    </button>
+
+    <pre id="log" class="h-64 overflow-y-auto text-xs bg-black/40 rounded p-3 whitespace-pre-wrap"></pre>
+  </div>
+
+<script>
+function appendLog(msg) {
+  const log = document.getElementById('log');
+  log.textContent += msg + "\n";
+  log.scrollTop = log.scrollHeight;
+}
+
+function setRunning(running) {
+  document.getElementById('btn').disabled = running;
+  document.getElementById('btn').textContent = running ? 'Baixando...' : 'Baixar legendas';
+}
+
+async function escolherPasta() {
+  const pasta = await window.pywebview.api.escolher_pasta();
+  if (pasta) document.getElementById('saida').value = pasta;
+}
+
+async function baixar() {
+  const canal = document.getElementById('canal').value.trim();
+  if (!canal) { appendLog('Informe a URL do canal.'); return; }
+  document.getElementById('log').textContent = '';
+  setRunning(true);
+  await window.pywebview.api.baixar(
+    canal,
+    document.getElementById('idiomas').value,
+    document.getElementById('saida').value,
+    document.getElementById('auto').checked
+  );
+}
+</script>
+</body>
+</html>
