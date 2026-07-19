@@ -2,17 +2,17 @@
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
-<title>Legendas do canal</title>
+<title>Baixar legendas do YouTube</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 p-6 font-sans">
   <div class="max-w-xl mx-auto space-y-4">
-    <h1 class="text-xl font-semibold">Baixar legendas de um canal do YouTube</h1>
+    <h1 class="text-xl font-semibold">Baixar legendas do YouTube</h1>
 
     <div class="space-y-1">
-      <label class="text-sm text-slate-400">URL do canal</label>
-      <input id="canal" placeholder="https://www.youtube.com/@canal/videos"
-             class="w-full rounded bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:border-slate-500">
+      <label class="text-sm text-slate-400">URLs — video, canal, playlist ou uma lista colada (uma por linha)</label>
+      <textarea id="urls" rows="4" placeholder="https://www.youtube.com/watch?v=...&#10;https://www.youtube.com/@canal/videos&#10;https://www.youtube.com/playlist?list=..."
+                class="w-full rounded bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:border-slate-500 font-mono text-sm"></textarea>
     </div>
 
     <div class="space-y-1">
@@ -62,12 +62,12 @@ async function escolherPasta() {
 }
 
 async function baixar() {
-  const canal = document.getElementById('canal').value.trim();
-  if (!canal) { appendLog('Informe a URL do canal.'); return; }
+  const urls = document.getElementById('urls').value.trim();
+  if (!urls) { appendLog('Cole ao menos uma URL (video, canal, playlist ou lista).'); return; }
   document.getElementById('log').textContent = '';
   setRunning(true);
   await window.pywebview.api.baixar(
-    canal,
+    urls,
     document.getElementById('idiomas').value,
     document.getElementById('saida').value,
     document.getElementById('auto').checked
