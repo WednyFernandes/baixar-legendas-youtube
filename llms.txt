@@ -1,0 +1,18 @@
+# baixar-legendas-youtube
+
+> Baixar Legendas YouTube is a Python CLI script with an optional pywebview GUI that bulk-downloads YouTube subtitles as .srt files from a single video, an entire channel, a playlist or a list of URLs, using yt-dlp and ffmpeg. It needs no YouTube API key and never downloads video or audio.
+
+## Files
+- [baixar_legendas_canal.py](https://github.com/WednyFernandes/baixar-legendas-youtube/blob/main/baixar_legendas_canal.py): CLI and core functions (baixar_legendas, parse_urls)
+- [gui.py](https://github.com/WednyFernandes/baixar-legendas-youtube/blob/main/gui.py): pywebview desktop window
+- [gui.html](https://github.com/WednyFernandes/baixar-legendas-youtube/blob/main/gui.html): GUI markup (Tailwind via CDN)
+- [requirements.txt](https://github.com/WednyFernandes/baixar-legendas-youtube/blob/main/requirements.txt): yt-dlp, pywebview, pythonnet (Windows only)
+- [README](https://github.com/WednyFernandes/baixar-legendas-youtube/blob/main/README.md): install, usage, flags, FAQ
+
+## Key facts
+- Run: `pip install -r requirements.txt`, then `python baixar_legendas_canal.py <urls...>` or `python gui.py`
+- Flags: `--idiomas` (default `pt,pt-BR,en`), `--saida` (default `legendas`), `--auto` (include auto-generated captions)
+- Requires Python 3.9+ and ffmpeg on PATH
+- Output: `<folder>/<video title>.srt`; videos without a matching subtitle are skipped
+- Built on yt-dlp options skip_download, writesubtitles and the FFmpegSubtitlesConvertor post-processor
+- Author: Wedny Fernandes (github.com/WednyFernandes)

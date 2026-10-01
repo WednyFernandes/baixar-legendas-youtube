@@ -12,38 +12,39 @@ year: 2025
 tags: [python, yt-dlp, pywebview]
 ---
 
-# Baixar legendas do YouTube
+# Baixar Legendas YouTube: bulk YouTube subtitle downloader (SRT) for whole channels and playlists
 
-> Script com interface pra baixar as legendas de um canal inteiro de uma vez.
+![YouTube subtitle downloader: download SRT captions from an entire channel or playlist with Python and yt-dlp](assets/hero.png)
 
-![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
-![yt--dlp](https://img.shields.io/badge/yt--dlp-latest-red?logo=youtube&logoColor=white)
-![pywebview](https://img.shields.io/badge/pywebview-latest-1f6feb)
-![Status](https://img.shields.io/badge/status-no%20ar-3fb950)
+**Baixar Legendas YouTube** is a Python command-line script with an optional desktop GUI that downloads the `.srt` subtitles of a single video, a whole YouTube channel, a playlist or a pasted list of URLs in one run, built on yt-dlp and pywebview, with no YouTube API key required.
 
-## O que é
+YouTube has no built-in way to grab every subtitle from a channel or playlist at once, and downloading them video by video is slow. This tool hands the URLs to yt-dlp, skips the video and audio, and saves only the captions.
 
-Baixar legenda de vídeo em vídeo no YouTube é chato, e não tem forma nativa
-de baixar todas de um canal ou playlist de uma vez. Este script resolve isso:
-recebe um vídeo, um canal inteiro, uma playlist ou uma lista de URLs coladas
-e baixa a legenda `.srt` de cada um, sem precisar de API key do YouTube.
+> YouTube subtitle downloader · download YouTube captions · bulk SRT download · channel transcripts · playlist subtitles · yt-dlp subtitles · auto-generated captions
 
-## Stack
+## Features
 
-| Tecnologia | Versão | Para quê |
+- **Video, channel or playlist.** Pass any mix of URLs. yt-dlp expands channels (`.../videos`) and playlists to every video.
+- **SRT output.** Subtitles are converted to `.srt` with ffmpeg.
+- **Language choice.** Defaults to `pt,pt-BR,en`; pass any comma-separated list.
+- **Auto-generated captions.** The optional `--auto` flag includes YouTube automatic captions.
+- **Keeps going on errors.** A video with no subtitle in the requested languages is skipped and the rest continue.
+- **Subtitles only.** It never downloads video or audio.
+- **Optional GUI.** A small pywebview window with a URL box, language field, folder picker, auto-caption checkbox and a live log.
+
+## Tech stack
+
+| Technology | Version | Used for |
 |---|---|---|
-| Python | 3.9+ | Runtime (uso de `list[str]` como type hint no código exige 3.9+) |
-| yt-dlp | sem versão fixada em `requirements.txt` | Busca e download das legendas |
-| pywebview | sem versão fixada em `requirements.txt` | Janela nativa da GUI opcional (`gui.py`) |
-| pythonnet | sem versão fixada; só instalado em `sys_platform == "win32"` | Backend do pywebview no Windows |
-| ffmpeg | externo, não é dependência Python | Converte a legenda pro formato `.srt` |
+| Python | 3.9+ | Runtime (the code uses `list[str]` type hints, which need 3.9+) |
+| yt-dlp | unpinned in `requirements.txt` | Fetching and downloading subtitles |
+| pywebview | unpinned in `requirements.txt` | Native window for the optional GUI (`gui.py`) |
+| pythonnet | unpinned; installed only when `sys_platform == "win32"` | pywebview backend on Windows |
+| ffmpeg | external, not a Python package | Converts subtitles to `.srt` |
 
-## Requisitos
+## Getting started
 
-- Python 3.9 ou mais recente
-- `ffmpeg` disponível no `PATH` (usado pela conversão de legenda pra `.srt`)
-
-## Instalação
+Requirements: Python 3.9 or newer, and `ffmpeg` on your `PATH`.
 
 ```bash
 git clone https://github.com/WednyFernandes/baixar-legendas-youtube.git
@@ -51,61 +52,62 @@ cd baixar-legendas-youtube
 pip install -r requirements.txt
 ```
 
-## Como usar
+## Usage
+
+### Command line
 
 ```bash
-python baixar_legendas_canal.py https://www.youtube.com/@canal/videos
+python baixar_legendas_canal.py https://www.youtube.com/@channel/videos
 ```
 
-Aceita vídeo, canal ou playlist, sozinhos ou combinados:
+It accepts a video, a channel or a playlist, alone or combined:
 
 ```bash
 python baixar_legendas_canal.py https://www.youtube.com/watch?v=XXXX
 python baixar_legendas_canal.py URL1 URL2 URL3
+python baixar_legendas_canal.py URL --idiomas en,es --saida subs --auto
 ```
 
-Saída esperada (baixando para a pasta `legendas/`, padrão de `--saida`):
+Files are saved as `<output folder>/<video title>.srt`.
 
-```
-$ python baixar_legendas_canal.py https://www.youtube.com/watch?v=XXXX
-Baixado: legendas/Nome do Video.srt
-```
-
-| Flag | Padrão | Descrição |
+| Argument | Default | Description |
 |---|---|---|
-| `urls` | obrigatório | Uma ou mais URLs: vídeo, canal (`.../videos`) ou playlist |
-| `--idiomas` | `pt,pt-BR,en` | Idiomas das legendas, separados por vírgula |
-| `--saida` | `legendas` | Pasta de destino dos arquivos `.srt` |
-| `--auto` | desligado | Inclui legendas geradas automaticamente quando não houver legenda manual |
+| `urls` | required | One or more URLs: video, channel (`.../videos`) or playlist |
+| `--idiomas` | `pt,pt-BR,en` | Subtitle languages, comma-separated |
+| `--saida` | `legendas` | Output folder for the `.srt` files |
+| `--auto` | off | Include auto-generated subtitles when no manual one exists |
 
-Também tem uma GUI local (`pywebview` + `gui.html`):
+### Desktop GUI
 
 ```bash
 python gui.py
 ```
 
-## Como funciona
+Paste one URL per line (video, channel, playlist or a mixed list), set the languages and output folder, tick the auto-caption box if needed, and start. The log shows a `Baixado: <file>` (downloaded) line per subtitle and `Concluido.` (done) at the end.
 
-O script usa `yt_dlp` diretamente e repassa a lista de URLs pra
-`ydl.download(urls)` — o próprio `yt-dlp` detecta se cada URL é vídeo, canal
-(`.../videos`) ou playlist e expande pra todos os vídeos correspondentes, por
-isso os três casos e a lista colada usam o mesmo caminho de código. Roda com
-`skip_download=True` e `writesubtitles=True`; a legenda é convertida pro
-formato `.srt` via `FFmpegSubtitlesConvertor`. Vídeo sem legenda no idioma
-pedido é pulado (`ignoreerrors=True`) e o download segue pros demais. A GUI
-(`gui.py`) só chama as mesmas funções (`baixar_legendas`, `parse_urls`) numa
-thread separada e mostra o log na janela do `pywebview`.
+## How it works
 
-## Estrutura
+The script calls `yt_dlp` directly and passes the list of URLs to `ydl.download(urls)`. yt-dlp detects whether each URL is a video, a channel or a playlist and expands it, so all cases share one code path. It runs with `skip_download=True` and `writesubtitles=True` (plus `writeautomaticsub` when `--auto` is on), and converts the result to `.srt` through the `FFmpegSubtitlesConvertor` post-processor. `ignoreerrors=True` makes it skip videos without a matching subtitle. The GUI (`gui.py`) calls the same functions (`baixar_legendas`, `parse_urls`) on a background thread and streams the log to the window.
+
+## Project structure
 
 ```
-baixar_legendas_canal.py   # CLI: parseia argumentos e roda o download via yt-dlp
-gui.py                     # janela pywebview que chama as mesmas funções da CLI
-gui.html                   # interface da GUI (HTML/Tailwind via CDN)
-requirements.txt           # dependências Python
+baixar_legendas_canal.py   # CLI: parses arguments and runs the download via yt-dlp
+gui.py                     # pywebview window that calls the same functions as the CLI
+gui.html                   # GUI markup (HTML + Tailwind via CDN)
+requirements.txt           # Python dependencies
 ```
 
-## Estado
+## FAQ
 
-Funciona pra vídeo, canal e playlist, linha de comando e GUI. Não baixa
-vídeo nem áudio, só a legenda.
+**Do I need a YouTube API key?**
+No. yt-dlp reads the public subtitle tracks directly.
+
+**Can I download the subtitles of an entire YouTube channel?**
+Yes. Pass the channel videos URL, for example `https://www.youtube.com/@channel/videos`, and every video with a subtitle in your chosen languages is saved.
+
+**Why is a video missing from the output folder?**
+It had no subtitle in the requested languages. Add more languages with `--idiomas`, or use `--auto` to include auto-generated captions.
+
+**Does it download the video too?**
+No. It only saves the subtitle files.
